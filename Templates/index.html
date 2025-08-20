@@ -1,0 +1,231 @@
+INDEX_HTML = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎂 Afshah's Pixel Art Birthday Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            border: 4px solid #ff69b4;
+        }
+
+        h1 {
+            color: #ff69b4;
+            margin-bottom: 10px;
+            font-size: 2em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .pixel-demo {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 20px;
+            background: 
+                radial-gradient(circle at 20px 20px, #ff69b4 8px, transparent 8px),
+                radial-gradient(circle at 44px 20px, #87ceeb 8px, transparent 8px),
+                radial-gradient(circle at 32px 44px, #98fb98 8px, transparent 8px);
+            background-size: 24px 24px;
+            border: 2px solid #333;
+            image-rendering: pixelated;
+        }
+
+        .upload-form {
+            margin: 30px 0;
+        }
+
+        .form-group {
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="file"], input[type="text"], input[type="range"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        input[type="file"] {
+            padding: 8px;
+            background: #f9f9f9;
+        }
+
+        .range-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        input[type="range"] {
+            flex: 1;
+        }
+
+        .range-value {
+            background: #ff69b4;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ff69b4, #ff1493);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255,105,180,0.3);
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255,105,180,0.4);
+        }
+
+        .features {
+            margin-top: 30px;
+            text-align: left;
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #ff69b4;
+        }
+
+        .features h3 {
+            color: #ff69b4;
+            margin-bottom: 15px;
+        }
+
+        .features ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .features li {
+            padding: 5px 0;
+            color: #666;
+        }
+
+        .features li::before {
+            content: "🎮 ";
+            margin-right: 8px;
+        }
+
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+
+        .flash-message {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 5px 0;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="pixel-demo"></div>
+        <h1>🎂 Pixel Art Birthday Generator</h1>
+        <p class="subtitle">Transform photos into adorable pixel art with birthday messages!</p>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for message in messages %}
+                        <div class="flash-message">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="/upload" enctype="multipart/form-data" class="upload-form">
+            <div class="form-group">
+                <label for="file">📷 Choose Your Photo:</label>
+                <input type="file" id="file" name="file" accept="image/*" required>
+            </div>
+
+            <div class="form-group">
+                <label for="name">🎂 Birthday Person's Name:</label>
+                <input type="text" id="name" name="name" value="Afshah" placeholder="Enter name">
+            </div>
+
+            <div class="form-group">
+                <label for="pixel_size">🎮 Pixel Size:</label>
+                <div class="range-group">
+                    <input type="range" id="pixel_size" name="pixel_size" min="4" max="16" value="8" oninput="updatePixelValue(this.value)">
+                    <div class="range-value" id="pixel_value">8px</div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn">✨ Generate Pixel Art ✨</button>
+        </form>
+
+        <div class="features">
+            <h3>🌟 Features:</h3>
+            <ul>
+                <li>Cute kawaii pixel art style</li>
+                <li>Personalized birthday messages</li>
+                <li>Adorable decorations & hearts</li>
+                <li>High-quality downloadable results</li>
+                <li>Perfect for sharing & printing</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function updatePixelValue(value) {
+            document.getElementById('pixel_value').textContent = value + 'px';
+        }
+    </script>
+</body>
+</html>
+"""
