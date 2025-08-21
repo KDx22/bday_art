@@ -30,25 +30,26 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'bmp'}
 # Create directories with error handling
 def create_directories():
     """Create required directories with proper error handling"""
+    global UPLOAD_FOLDER, OUTPUT_FOLDER  # Move global declaration here
+    
     try:
         os.makedirs(UPLOAD_FOLDER, exist_ok=True)
         os.makedirs(OUTPUT_FOLDER, exist_ok=True)
-        print(f"✅ Directories created: {UPLOAD_FOLDER}, {OUTPUT_FOLDER}")
+        print(f"Directories created: {UPLOAD_FOLDER}, {OUTPUT_FOLDER}")
         
         # Test write permissions
         test_file = os.path.join(UPLOAD_FOLDER, 'test.txt')
         with open(test_file, 'w') as f:
             f.write('test')
         os.remove(test_file)
-        print("✅ Write permissions OK")
+        print("Write permissions OK")
         
     except Exception as e:
-        print(f"❌ Directory creation failed: {e}")
+        print(f"Directory creation failed: {e}")
         # Fallback to temp directory
-        global UPLOAD_FOLDER, OUTPUT_FOLDER
         UPLOAD_FOLDER = tempfile.mkdtemp(prefix='uploads_')
         OUTPUT_FOLDER = tempfile.mkdtemp(prefix='outputs_')
-        print(f"📁 Using temp directories: {UPLOAD_FOLDER}, {OUTPUT_FOLDER}")
+        print(f"Using temp directories: {UPLOAD_FOLDER}, {OUTPUT_FOLDER}")
 
 create_directories()
 
@@ -62,7 +63,7 @@ def index():
 @app.route('/upload', methods=['POST'])
 def upload_file():
     try:
-        print("📤 Upload request received")
+        print("Upload request received")
         
         if 'file' not in request.files:
             flash('No file selected!')
@@ -72,7 +73,7 @@ def upload_file():
         name = request.form.get('name', 'Afshah').strip()
         pixel_size = int(request.form.get('pixel_size', 8))
         
-        print(f"📋 Form data - name: {name}, pixel_size: {pixel_size}")
+        print(f"Form data - name: {name}, pixel_size: {pixel_size}")
         
         if file.filename == '':
             flash('No file selected!')
@@ -90,30 +91,30 @@ def upload_file():
         input_path = os.path.join(UPLOAD_FOLDER, f"{unique_id}_input.{file_extension}")
         output_path = os.path.join(OUTPUT_FOLDER, f"{unique_id}_pixel_art.png")
         
-        print(f"📁 Paths - input: {input_path}, output: {output_path}")
+        print(f"Paths - input: {input_path}, output: {output_path}")
         
         # Save uploaded file with error handling
         try:
             file.save(input_path)
-            print(f"✅ File saved: {input_path}")
+            print(f"File saved: {input_path}")
             
             # Verify file was saved
             if not os.path.exists(input_path):
                 raise Exception("File not saved properly")
                 
         except Exception as e:
-            print(f"❌ File save error: {e}")
+            print(f"File save error: {e}")
             flash('Error saving uploaded file. Please try again.')
             return redirect(url_for('index'))
         
         # Generate pixel art with detailed error handling
         try:
-            print("🎨 Starting pixel art generation...")
+            print("Starting pixel art generation...")
             generator = PixelArtGenerator()
             success = generator.generate_pixel_art(input_path, output_path, pixel_size, name)
             
             if success:
-                print("✅ Pixel art generation successful")
+                print("Pixel art generation successful")
                 
                 # Verify output file exists
                 if not os.path.exists(output_path):
@@ -122,7 +123,7 @@ def upload_file():
                 # Clean up input file
                 try:
                     os.remove(input_path)
-                    print("🗑️ Input file cleaned up")
+                    print("Input file cleaned up")
                 except:
                     pass  # Don't fail if cleanup fails
                 
@@ -135,7 +136,7 @@ def upload_file():
                 raise Exception("Generator returned False")
                 
         except Exception as e:
-            print(f"❌ Pixel art generation error: {e}")
+            print(f"Pixel art generation error: {e}")
             traceback.print_exc()
             
             # Clean up input file on error
@@ -149,7 +150,7 @@ def upload_file():
             return redirect(url_for('index'))
     
     except Exception as e:
-        print(f"❌ Unexpected error in upload_file: {e}")
+        print(f"Unexpected error in upload_file: {e}")
         traceback.print_exc()
         flash('Unexpected error occurred. Please try again.')
         return redirect(url_for('index'))
@@ -164,7 +165,7 @@ def download_file(filename):
             flash('File not found.')
             return redirect(url_for('index'))
     except Exception as e:
-        print(f"❌ Download error: {e}")
+        print(f"Download error: {e}")
         flash('Error downloading file.')
         return redirect(url_for('index'))
 
@@ -173,9 +174,9 @@ def health_check():
     """Health check endpoint for deployment debugging"""
     try:
         from pixel_generator import PixelArtGenerator
-        generator_status = "✅ Available"
+        generator_status = "Available"
     except ImportError as e:
-        generator_status = f"❌ Import Error: {e}"
+        generator_status = f"Import Error: {e}"
     
     return {
         "status": "ok",
